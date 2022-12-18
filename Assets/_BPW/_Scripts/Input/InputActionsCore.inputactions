@@ -99,7 +99,7 @@
             "actions": [
                 {
                     "name": "Fire",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "8f6c14d2-c06d-49e3-b33e-13f3efc45d18",
                     "expectedControlType": "Button",
                     "processors": "",
@@ -156,6 +156,34 @@
                     "processors": "",
                     "groups": "",
                     "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Interaction",
+            "id": "aecd72b4-eacb-46dc-9e6d-62879dcc32b7",
+            "actions": [
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "3069b606-647d-4c48-ba92-518592297fac",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "745efe3e-9eec-4c8a-8ca0-88cd4243a1bf",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

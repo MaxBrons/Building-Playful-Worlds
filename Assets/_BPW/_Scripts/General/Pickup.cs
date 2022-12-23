@@ -17,7 +17,6 @@ public class Pickup : MonoBehaviour, IPickupable
     }
 
     public void OnPickup() {
-        print("Picked up Item");
         OnPickedUp?.Invoke();
     }
 }

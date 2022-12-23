@@ -13,7 +13,7 @@ public class CameraController : MonoBehaviour
     private Rigidbody2D m_CamRB;
 
     private void Start() {
-        m_Player = GameManager.GetPlayer();
+        m_Player = GameManager.Instance.Player;
         m_CamRB = m_CamHandle.GetComponent<Rigidbody2D>();
     }
 

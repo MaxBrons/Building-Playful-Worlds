@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 [Serializable]
 public struct SpriteStates
@@ -10,7 +11,7 @@ public struct SpriteStates
     public Vector2 Angle;
 }
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IInputHandler
 {
     [SerializeField] private float m_MovementSpeed = 7.5f;
     [SerializeField] private List<SpriteStates> m_PlayerSprites;
@@ -27,7 +28,7 @@ public class PlayerController : MonoBehaviour
     private void Start() {
         m_RigidBody = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
-        m_Cam = Camera.main;
+        m_Cam = GameManager.Instance.MainCamera;
     }
     private void Update() {
         m_RigidBody.MovePosition(transform.position + (Vector3)m_MovementInputVector * m_MovementSpeed * Time.deltaTime);
@@ -47,5 +48,14 @@ public class PlayerController : MonoBehaviour
         if (newSprite) {
             m_SpriteRenderer.sprite = newSprite;
         }
+    }
+    
+    public void OnInputEnabled() {
+    }
+
+    public void OnInputDisabled() {
+        m_MovementInputVector = Vector2.zero;
+        m_CursorPos = Vector2.zero;
+        print("asdff");
     }
 }

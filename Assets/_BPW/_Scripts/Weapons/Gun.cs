@@ -13,7 +13,12 @@ public class Gun : Weapon
     [Header("Settings")]
     [SerializeField] private int m_MagSize = 30;
     [SerializeField] private AudioClip m_ReloadSound;
-    [SerializeField] private float m_ShakeScale = 1;
+
+    [Header("Camera Shake")]
+    [SerializeField] private float m_ShakeMagnitude = 10.0f;
+    [SerializeField] private float m_ShakeRoughness = 0.1f;
+    [SerializeField] private Vector2 m_ShakeFadeInOut = new Vector2(0.1f, 0.2f);
+
 
     private int m_CurrentClipCount = 0;
 
@@ -29,7 +34,7 @@ public class Gun : Weapon
         base.AttackOnce();
         m_CurrentClipCount -= 1;
 
-        CameraShaker.Instance.ShakeOnce(3.0f, .1f, 0.1f, .2f, transform.up, new Vector3(1,1,0));
+        CameraShaker.Instance.ShakeOnce(m_ShakeMagnitude, m_ShakeRoughness, m_ShakeFadeInOut.x, m_ShakeFadeInOut.y, transform.up, CameraShaker.Instance.DefaultRotInfluence);
     }
 
     private void OnReload(InputValue value) {

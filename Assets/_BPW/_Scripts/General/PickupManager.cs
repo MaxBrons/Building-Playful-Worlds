@@ -14,37 +14,39 @@ public class PickupManager : MonoBehaviour
 
     private List<GameObject> m_ItemsInRange = new List<GameObject>();
 
-
     private void Start() {
         if (m_RangeCollider) {
             m_RangeCollider.radius = m_PickupRange;
         }
     }
-    private void OnInteract(InputValue value) {
-        foreach (var item in m_ItemsInRange) {
 
+    private void OnInteract(InputValue value) {
+        for (int i = 0; i < m_ItemsInRange.Count; i++) {
+            var item = m_ItemsInRange[i];
             var pickup = item.GetComponent<IPickupable>();
-            if (pickup != null) {
-                pickup.OnPickup();
+            if (pickup == null) {
+                continue;
             }
 
-            var data = item.GetComponent<InventoryItemData>();
-            if (data) {
-                var invItem = new Inventory.InventoryItem(data.GetData().ID, data.GetData().Image, item);
-                InventoryManager.Instance.Inventory.AddItem(invItem);
+            var itemWithData = item.GetComponent<Item>();
+            if (itemWithData) {
+                pickup.OnPickup();
+
+                var newItem = Inventory.Instance.Add(itemWithData.InventoryItemData);
+                if(newItem != null) {
+                    Destroy(item);
+                    i--;
+                }
             }
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {
         m_ItemsInRange.Add(collision.gameObject);
-        print("New Item Found");
     }
 
     private void OnTriggerExit2D(Collider2D collision) {
         m_ItemsInRange.Remove(collision.gameObject);
-        print("New Item Lost");
-
     }
 
     private void OnDrawGizmos() {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using TreeEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerArm : MonoBehaviour
 {

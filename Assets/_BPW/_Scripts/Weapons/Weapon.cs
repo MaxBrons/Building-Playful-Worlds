@@ -16,6 +16,7 @@ public abstract class Weapon : MonoBehaviour
     [Header("Base")]
     [SerializeField] protected GameObject m_WeaponAttachPoint;
     [SerializeField] protected AudioClip m_AttackSound;
+    [SerializeField] protected LayerMask m_AttackMask;
 
     [Header("Settings Base")]
     [SerializeField] protected float m_MaxRange = 100.0f;
@@ -42,20 +43,29 @@ public abstract class Weapon : MonoBehaviour
     }
 
     public virtual void AttackOnce() {
-        var hitResult = Physics2D.Raycast(transform.position + (transform.position - m_WeaponAttachPoint.transform.position), m_WeaponAttachPoint.transform.up, m_MaxRange);
-
+        var hitResults = Physics2D.RaycastAll(transform.position + (transform.position - m_WeaponAttachPoint.transform.position), m_WeaponAttachPoint.transform.up, m_MaxRange, m_AttackMask);
+        print(hitResults.Length);
         //Play gunshot
         if (m_AudioBehaviour)
             m_AudioBehaviour.PlayOneShot(m_AttackSound);
 
+        List<GameObject> handledObjects = new List<GameObject>();
         //Decrease health of the hit enemy and call the OnHit event
-        if (hitResult) {
-            var healthComp = hitResult.transform.GetComponent<Health>();
+        foreach (var hitResult in hitResults) {
+            if (hitResult) {
+                if (hitResult.collider.isTrigger || handledObjects.Contains(hitResult.transform.gameObject))
+                    continue;
 
-            if (healthComp) {
-                healthComp.DecreaseHealth((int)UnityEngine.Random.Range(m_DamageRange.x, m_DamageRange.y) + 1);
+                var healthComp = hitResult.transform.GetComponent<Health>();
+
+                if (healthComp) {
+                    healthComp.DecreaseHealth((int)UnityEngine.Random.Range(m_DamageRange.x, m_DamageRange.y) + 1);
+
+                    handledObjects.Add(hitResult.transform.gameObject);
+                    OnHit?.Invoke(hitResult.transform.gameObject);
+                    continue;
+                }
             }
-            OnHit?.Invoke(hitResult.transform.gameObject);
         }
 
         m_Durability -= 0.1f;

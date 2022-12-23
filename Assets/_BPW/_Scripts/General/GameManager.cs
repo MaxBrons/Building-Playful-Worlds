@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -37,6 +38,8 @@ public class GameManager : MonoBehaviour
         InputManager.Instance.SetPlayerInputActive(false);
         Time.timeScale = 0.0f;
         OnGameOver?.Invoke();
+
+        SceneManager.LoadScene(2);
     }
 
     public GameObject Player => m_Player;

@@ -9,6 +9,7 @@ public struct SpriteStates
 {
     public Sprite Sprite;
     public Vector2 Angle;
+    public bool Flipped;
 }
 
 public class PlayerController : MonoBehaviour, IInputHandler
@@ -46,15 +47,18 @@ public class PlayerController : MonoBehaviour, IInputHandler
         var signedRot = Mathf.Repeat(Mathf.Atan2(stwp.y - transform.position.y,
                                     stwp.x - transform.position.x) * Mathf.Rad2Deg - 90.0f, 360.0f);
 
-        Sprite newSprite = m_PlayerSprites.Find((e) => {
+        var spriteItem = m_PlayerSprites.Find((e) => {
             if(e.Angle.y - e.Angle.x < 0) {
                 return signedRot > e.Angle.x || signedRot < e.Angle.y;
             }
             return signedRot > e.Angle.x && signedRot < e.Angle.y;
-            }).Sprite;
-        
+            });
+
+        Sprite newSprite = spriteItem.Sprite;
+
         if (newSprite) {
             m_SpriteRenderer.sprite = newSprite;
+            m_SpriteRenderer.flipX = spriteItem.Flipped;
         }
     }
 

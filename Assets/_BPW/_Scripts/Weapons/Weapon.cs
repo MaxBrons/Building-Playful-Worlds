@@ -43,7 +43,8 @@ public abstract class Weapon : MonoBehaviour
     }
 
     public virtual void AttackOnce() {
-        var hitResults = Physics2D.RaycastAll(transform.position + (transform.position - m_WeaponAttachPoint.transform.position), m_WeaponAttachPoint.transform.up, m_MaxRange, m_AttackMask);
+        var hitResults = Physics2D.RaycastAll(transform.position + (transform.position - m_WeaponAttachPoint.transform.position), m_WeaponAttachPoint.transform.right, m_MaxRange, m_AttackMask);
+        Debug.DrawLine(transform.position, transform.position + m_WeaponAttachPoint.transform.right * 100, Color.red, 3f);
         print(hitResults.Length);
         //Play gunshot
         if (m_AudioBehaviour)

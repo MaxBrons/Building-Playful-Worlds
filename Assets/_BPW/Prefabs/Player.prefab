@@ -140,16 +140,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 320fb31b42d99684ba8e23c25f0a2565, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MovementSpeed: 10
+  m_MovementSpeed: 5
   m_PlayerSprites:
-  - Sprite: {fileID: 21300000, guid: fad537f7b1df74e869915bbab4356a0f, type: 3}
-    Angle: {x: 316, y: 45}
-  - Sprite: {fileID: 21300000, guid: 7395bf0bc3cc40e4ab2dda5ec6832261, type: 3}
-    Angle: {x: 46, y: 135}
-  - Sprite: {fileID: 21300000, guid: 0779ad3feec52124e97114bcbb12ef13, type: 3}
-    Angle: {x: 136, y: 225}
-  - Sprite: {fileID: 21300000, guid: 556a2f3b046024d4c9621c1b4be5f0c1, type: 3}
-    Angle: {x: 226, y: 315}
+  - Sprite: {fileID: 21300000, guid: 0a7ae8f5b249869469a623146d3b6aff, type: 3}
+    Angle: {x: 0, y: 180}
+    Flipped: 1
+  - Sprite: {fileID: 21300000, guid: 0a7ae8f5b249869469a623146d3b6aff, type: 3}
+    Angle: {x: 180, y: 360}
+    Flipped: 0
 --- !u!50 &4343168045514915830
 Rigidbody2D:
   serializedVersion: 4

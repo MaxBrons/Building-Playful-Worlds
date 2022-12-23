@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 public class PlayerArm : MonoBehaviour
 {
 
-    [SerializeField] private const float m_RotOffset = 90;
+    [SerializeField] private float m_RotOffset = 90;
 
     public void OnCursorMove(InputValue value) {
         var mousePos = value.Get<Vector2>();

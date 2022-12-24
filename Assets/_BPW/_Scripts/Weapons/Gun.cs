@@ -6,7 +6,8 @@ using UnityEngine.InputSystem;
 
 public class Gun : Weapon
 {
-    public event Action OnGunFired;
+    public event Action<bool> OnGunReloadStarted;
+    public event Action OnGunReloadEnded;
 
     [Header("Settings")]
     [SerializeField] private int m_MagSize = 30;
@@ -19,6 +20,7 @@ public class Gun : Weapon
 
 
     private int m_CurrentClipCount = 0;
+    private bool m_IsReloading = false;
 
     public override void Start() {
         base.Start();
@@ -26,13 +28,13 @@ public class Gun : Weapon
     }
 
     public override void AttackOnce() {
-        if (m_CurrentClipCount <= 0) 
+        if (m_CurrentClipCount <= 0)
             return;
 
         base.AttackOnce();
         m_CurrentClipCount -= 1;
 
-        CameraShaker.Instance.ShakeOnce(m_ShakeMagnitude, m_ShakeRoughness, m_ShakeFadeInOut.x, m_ShakeFadeInOut.y, transform.up, CameraShaker.Instance.DefaultRotInfluence);
+        CameraShaker.Instance.ShakeOnce(m_ShakeMagnitude, m_ShakeRoughness, m_ShakeFadeInOut.x, m_ShakeFadeInOut.y, transform.right, CameraShaker.Instance.DefaultRotInfluence);
     }
 
     private void OnReload(InputValue value) {
@@ -41,10 +43,14 @@ public class Gun : Weapon
                 () => {
                     m_AudioBehaviour.clip = m_ReloadSound;
                     m_AudioBehaviour.Play();
+                    m_IsReloading = true;
+                    OnGunReloadStarted?.Invoke(m_CurrentClipCount <= 0);
                 },
                 () => {
                     m_CurrentClipCount = m_MagSize;
                     m_AudioBehaviour.clip = m_AttackSound;
+                    m_IsReloading = false;
+                    OnGunReloadEnded?.Invoke();
                 }));
         }
     }

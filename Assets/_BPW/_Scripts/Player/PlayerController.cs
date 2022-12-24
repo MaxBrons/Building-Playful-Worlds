@@ -14,6 +14,8 @@ public struct SpriteStates
 
 public class PlayerController : MonoBehaviour, IInputHandler
 {
+    public Action<bool>OnFlipped;
+
     [SerializeField] private float m_MovementSpeed = 7.5f;
     [SerializeField] private List<SpriteStates> m_PlayerSprites;
 
@@ -23,6 +25,7 @@ public class PlayerController : MonoBehaviour, IInputHandler
     private Camera m_Cam;
     private SpriteRenderer m_SpriteRenderer;
     private Health m_Health;
+    private bool m_PreviousRot;
 
     public void OnMovement(InputValue value) => m_MovementInputVector = value.Get<Vector2>();
     public void OnCursorMove(InputValue value) => m_CursorPos = value.Get<Vector2>();
@@ -31,7 +34,7 @@ public class PlayerController : MonoBehaviour, IInputHandler
         m_RigidBody = GetComponent<Rigidbody2D>();
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
         m_Cam = GameManager.Instance.MainCamera;
-        
+
         m_Health = GetComponent<Health>();
         if (m_Health) {
             m_Health.OnHealthDepleted += GameManager.Instance.GameOver;
@@ -47,19 +50,26 @@ public class PlayerController : MonoBehaviour, IInputHandler
         var signedRot = Mathf.Repeat(Mathf.Atan2(stwp.y - transform.position.y,
                                     stwp.x - transform.position.x) * Mathf.Rad2Deg - 90.0f, 360.0f);
 
-        var spriteItem = m_PlayerSprites.Find((e) => {
-            if(e.Angle.y - e.Angle.x < 0) {
-                return signedRot > e.Angle.x || signedRot < e.Angle.y;
-            }
-            return signedRot > e.Angle.x && signedRot < e.Angle.y;
-            });
-
-        Sprite newSprite = spriteItem.Sprite;
-
-        if (newSprite) {
-            m_SpriteRenderer.sprite = newSprite;
-            m_SpriteRenderer.flipX = spriteItem.Flipped;
+        var shouldFlip = signedRot >= 180 && signedRot <= 360;
+        var scale = transform.localScale;
+        if(m_PreviousRot != shouldFlip) {
+            transform.localScale = new Vector3(shouldFlip ? 1 : -1, scale.y, scale.z);
+            m_PreviousRot = shouldFlip;
+            OnFlipped?.Invoke(shouldFlip);
         }
+        //var spriteItem = m_PlayerSprites.Find((e) => {
+        //    if (e.Angle.y - e.Angle.x < 0) {
+        //        return signedRot > e.Angle.x || signedRot < e.Angle.y;
+        //    }
+        //    return signedRot > e.Angle.x && signedRot < e.Angle.y;
+        //});
+
+        //Sprite newSprite = spriteItem.Sprite;
+
+        //if (newSprite) {
+        //    m_SpriteRenderer.sprite = newSprite;
+        //    m_SpriteRenderer.flipX = spriteItem.Flipped;
+        //}
     }
 
     public void OnInputEnabled() {

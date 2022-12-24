@@ -1,20 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using static UnityEngine.Rendering.DebugUI;
 
+[RequireComponent(typeof(AudioSource), typeof(WeaponAnimation))]
 public abstract class Weapon : MonoBehaviour
 {
     public event Action<GameObject> OnHit;
-    public event Action<float> OnDurabilityChanged;
     public event Action OnAttack;
 
     [Header("Base")]
-    [SerializeField] protected GameObject m_WeaponAttachPoint;
+    [SerializeField] protected GameObject m_WeaponAttackDirPoint;
     [SerializeField] protected AudioClip m_AttackSound;
     [SerializeField] protected LayerMask m_AttackMask;
 
@@ -25,14 +27,17 @@ public abstract class Weapon : MonoBehaviour
     [SerializeField] protected int m_AttackSpeed = 100;
 
     protected AudioSource m_AudioBehaviour;
+    protected WeaponAnimation m_AnimationHandler;
     protected bool m_AttackingContinuous = false;
     protected bool m_OnCooldown = false;
 
+    private List<GameObject> m_HandledObjects = new List<GameObject>(5);
+
     public virtual void Start() {
         m_AudioBehaviour = GetComponent<AudioSource>();
-        if (m_AudioBehaviour) {
-            m_AudioBehaviour.clip = m_AttackSound;
-        }
+        m_AudioBehaviour.clip = m_AttackSound;
+
+        m_AnimationHandler = GetComponent<WeaponAnimation>();
     }
 
     public virtual void OnFire(InputValue value) {
@@ -43,35 +48,51 @@ public abstract class Weapon : MonoBehaviour
     }
 
     public virtual void AttackOnce() {
-        var hitResults = Physics2D.RaycastAll(transform.position + (transform.position - m_WeaponAttachPoint.transform.position), m_WeaponAttachPoint.transform.right, m_MaxRange, m_AttackMask);
-        Debug.DrawLine(transform.position, transform.position + m_WeaponAttachPoint.transform.right * 100, Color.red, 3f);
-        print(hitResults.Length);
+        var hitResults = Physics2D.RaycastAll(m_WeaponAttackDirPoint.transform.position, m_WeaponAttackDirPoint.transform.up, m_MaxRange, m_AttackMask);
+
         //Play gunshot
         if (m_AudioBehaviour)
             m_AudioBehaviour.PlayOneShot(m_AttackSound);
 
-        List<GameObject> handledObjects = new List<GameObject>();
+        HandleObjects(hitResults);
+
         //Decrease health of the hit enemy and call the OnHit event
-        foreach (var hitResult in hitResults) {
-            if (hitResult) {
-                if (hitResult.collider.isTrigger || handledObjects.Contains(hitResult.transform.gameObject))
-                    continue;
+        if (m_HandledObjects.Count > 0) {
+            foreach (var hitResult in m_HandledObjects) {
+                var healthComp = hitResult.transform.GetComponent<IDamagable>();
+                healthComp.Damage((int)UnityEngine.Random.Range(m_DamageRange.x, m_DamageRange.y) + 1);
 
-                var healthComp = hitResult.transform.GetComponent<Health>();
-
-                if (healthComp) {
-                    healthComp.DecreaseHealth((int)UnityEngine.Random.Range(m_DamageRange.x, m_DamageRange.y) + 1);
-
-                    handledObjects.Add(hitResult.transform.gameObject);
-                    OnHit?.Invoke(hitResult.transform.gameObject);
-                    continue;
-                }
+                OnHit?.Invoke(hitResult.transform.gameObject);
             }
         }
 
         m_Durability -= 0.1f;
-        OnDurabilityChanged?.Invoke(m_Durability);
         OnAttack?.Invoke();
+    }
+
+    private void HandleObjects(RaycastHit2D[] hitResults) {
+        for (int i = 0; i < m_HandledObjects.Count || i < hitResults.Length; i++) {
+            if (hitResults.Length <= 0)
+                return;
+
+            if (!hitResults[i])
+                continue;
+
+            if (hitResults[i].collider.isTrigger)
+                continue;
+
+            if (i > m_HandledObjects.Count) {
+                m_HandledObjects.Append(hitResults[i].transform.gameObject);
+                continue;
+            }
+
+            if (i < hitResults.Length) {
+                m_HandledObjects[i] = hitResults[i].transform.gameObject;
+                continue;
+            }
+
+            m_HandledObjects[i] = null;
+        }
     }
 
     public virtual IEnumerator AttackContinuous() {

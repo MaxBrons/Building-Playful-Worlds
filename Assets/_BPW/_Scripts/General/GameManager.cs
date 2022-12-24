@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     }
 
     public GameObject Player => m_Player;
-    public Camera MainCamera => m_Cam;
+    public Camera MainCamera => m_Cam ? m_Cam : Camera.main;
 
     private void OnApplicationQuit() {
         Inventory.Instance.Dispose();
